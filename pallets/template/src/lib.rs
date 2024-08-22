@@ -199,9 +199,8 @@ pub mod pallet {
 		pub fn finalize_proposal(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
 			let _caller = ensure_signed(origin)?;
 
-			let proposal = Self::active_proposals(proposal_id)
-				.ok_or(Error::<T>::ProposalDoesNotExist)
-				.unwrap();
+			let proposal =
+				Self::active_proposals(proposal_id).ok_or(Error::<T>::ProposalDoesNotExist)?;
 
 			let current_timestamp = <pallet_timestamp::Pallet<T>>::now();
 			ensure!(current_timestamp > proposal.end_timestamp, Error::<T>::TooEarlyToFinalize,);
