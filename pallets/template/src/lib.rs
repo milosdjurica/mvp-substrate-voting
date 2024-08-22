@@ -43,6 +43,7 @@ pub mod pallet {
 	pub enum Error<T> {
 		EndTimeStampTooSoon,
 		DescriptionIsTooLong,
+		Overflow,
 	}
 
 	#[pallet::storage]
@@ -55,5 +56,52 @@ pub mod pallet {
 		StorageMap<_, Blake2_128Concat, u32, Proposal<T::AccountId, T::Moment>, OptionQuery>;
 
 	#[pallet::call]
-	impl<T: Config> Pallet<T> {}
+	impl<T: Config> Pallet<T> {
+		#[pallet::weight(Weight::default())]
+		#[pallet::call_index(0)]
+		pub fn create_proposal(
+			origin: OriginFor<T>,
+			description: Vec<u8>,
+			end_timestamp: T::Moment,
+		) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			let old_id = Self::proposal_counter();
+			let new_id = old_id.checked_add(1).ok_or(Error::<T>::Overflow)?;
+
+			// ! Check if end_timestamp  > current + min_diff
+			let current_timestamp = <pallet_timestamp::Pallet<T>>::now();
+			let min_difference: T::Moment =
+				86_400_000u64.try_into().map_err(|_| Error::<T>::Overflow)?; // 1 day in milliseconds
+			ensure!(
+				end_timestamp > current_timestamp + min_difference,
+				Error::<T>::EndTimeStampTooSoon
+			);
+
+			// ! Check if description too long
+			let max_description_length = 1024u32;
+			ensure!(
+				description.len() as u32 <= max_description_length,
+				Error::<T>::DescriptionIsTooLong
+			);
+
+			let new_proposal = Proposal {
+				creator: sender.clone(),
+				description: description.clone(),
+				end_timestamp,
+			};
+
+			<ActiveProposals<T>>::insert(new_id, new_proposal);
+			<ProposalCounter<T>>::put(new_id);
+
+			Self::deposit_event(Event::ProposalCreated {
+				proposal_id: new_id,
+				creator: sender,
+				description: description.clone(),
+				end_timestamp,
+			});
+
+			Ok(())
+		}
+	}
 }
