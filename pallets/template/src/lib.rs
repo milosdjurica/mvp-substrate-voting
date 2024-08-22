@@ -193,5 +193,46 @@ pub mod pallet {
 
 			Ok(())
 		}
+
+		#[pallet::weight(Weight::default())]
+		#[pallet::call_index(2)]
+		pub fn finalize_proposal(origin: OriginFor<T>, proposal_id: u32) -> DispatchResult {
+			let _caller = ensure_signed(origin)?;
+
+			let proposal = Self::active_proposals(proposal_id)
+				.ok_or(Error::<T>::ProposalDoesNotExist)
+				.unwrap();
+
+			let current_timestamp = <pallet_timestamp::Pallet<T>>::now();
+			ensure!(current_timestamp > proposal.end_timestamp, Error::<T>::TooEarlyToFinalize,);
+
+			let (total_votes, yes_votes) = Self::get_vote_counts(proposal_id);
+
+			let finished_proposal =
+				FinishedProposal { proposal, is_approved: yes_votes * 2 > total_votes };
+
+			<FinishedProposals<T>>::insert(proposal_id, finished_proposal.clone());
+			<ActiveProposals<T>>::remove(proposal_id);
+
+			// ! Emit number of YES vs number of NO
+			Self::deposit_event(Event::ProposalFinalized {
+				proposal_id,
+				is_approved: finished_proposal.is_approved,
+				total_votes,
+				yes_votes,
+			});
+
+			Ok(())
+		}
+	}
+
+	impl<T: Config> Pallet<T> {
+		fn get_vote_counts(proposal_id: u32) -> (u32, u32) {
+			let votes = Self::proposal_to_votes(proposal_id).unwrap_or_default();
+			let total_votes = votes.len() as u32;
+			let yes_votes = votes.iter().filter(|v| v.vote_is_yes).count() as u32;
+
+			(total_votes, yes_votes)
+		}
 	}
 }
