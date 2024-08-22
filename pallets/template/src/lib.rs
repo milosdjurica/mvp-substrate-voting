@@ -34,6 +34,12 @@ pub mod pallet {
 		pub vote_is_yes: bool,
 	}
 
+	#[derive(Clone, Encode, Decode, Default, TypeInfo)]
+	pub struct FinishedProposal<AccountId, Moment> {
+		pub proposal: Proposal<AccountId, Moment>,
+		pub is_approved: bool,
+	}
+
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
@@ -48,6 +54,12 @@ pub mod pallet {
 			voter: T::AccountId,
 			vote_is_yes: bool,
 		},
+		ProposalFinalized {
+			proposal_id: u32,
+			is_approved: bool,
+			total_votes: u32,
+			yes_votes: u32,
+		},
 	}
 
 	#[pallet::error]
@@ -58,6 +70,7 @@ pub mod pallet {
 		ProposalDoesNotExist,
 		ProposalIsNotActive,
 		UserAlreadyVoted,
+		TooEarlyToFinalize,
 	}
 
 	#[pallet::storage]
@@ -87,6 +100,16 @@ pub mod pallet {
 		(T::AccountId, u32), // AccountId, Proposal ID
 		bool,                // Did vote or did not vote
 		ValueQuery,
+	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn finished_proposals)]
+	pub(super) type FinishedProposals<T: Config> = StorageMap<
+		_,
+		Blake2_128Concat,
+		u32,
+		FinishedProposal<T::AccountId, T::Moment>,
+		OptionQuery,
 	>;
 
 	#[pallet::call]
