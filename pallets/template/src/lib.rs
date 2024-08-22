@@ -21,6 +21,13 @@ pub mod pallet {
 		type Time: From<<Self as TimestampConfig>::Moment>;
 	}
 
+	#[derive(Clone, Encode, Decode, Default, TypeInfo)]
+	pub struct Proposal<AccountId, Moment> {
+		pub creator: AccountId,
+		pub description: Vec<u8>,
+		pub end_timestamp: Moment,
+	}
+
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
@@ -41,6 +48,11 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn proposal_counter)]
 	pub(super) type ProposalCounter<T> = StorageValue<_, u32, ValueQuery>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn active_proposals)]
+	pub(super) type ActiveProposals<T: Config> =
+		StorageMap<_, Blake2_128Concat, u32, Proposal<T::AccountId, T::Moment>, OptionQuery>;
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {}
