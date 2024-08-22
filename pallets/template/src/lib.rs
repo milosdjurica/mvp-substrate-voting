@@ -28,6 +28,12 @@ pub mod pallet {
 		pub end_timestamp: Moment,
 	}
 
+	#[derive(Clone, Encode, Decode, Default, TypeInfo)]
+	pub struct Vote<AccountId> {
+		pub voter: AccountId,
+		pub vote_is_yes: bool,
+	}
+
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
@@ -36,6 +42,11 @@ pub mod pallet {
 			creator: T::AccountId,
 			description: Vec<u8>,
 			end_timestamp: T::Moment,
+		},
+		UserVoted {
+			proposal_id: u32,
+			voter: T::AccountId,
+			vote_is_yes: bool,
 		},
 	}
 
@@ -54,6 +65,26 @@ pub mod pallet {
 	#[pallet::getter(fn active_proposals)]
 	pub(super) type ActiveProposals<T: Config> =
 		StorageMap<_, Blake2_128Concat, u32, Proposal<T::AccountId, T::Moment>, OptionQuery>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn proposal_to_votes)]
+	pub(super) type ProposalToVotes<T: Config> = StorageMap<
+		_,
+		Blake2_128Concat,
+		u32,                     // Proposal ID
+		Vec<Vote<T::AccountId>>, // List of votes
+		OptionQuery,
+	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn user_has_voted_on_proposal)]
+	pub(super) type UserHasVotedOnProposal<T: Config> = StorageMap<
+		_,
+		Blake2_128Concat,
+		(T::AccountId, u32), // AccountId, Proposal ID
+		bool,                // Did vote or did not vote
+		ValueQuery,
+	>;
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
