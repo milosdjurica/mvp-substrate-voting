@@ -33,10 +33,16 @@ pub mod pallet {
 		pub vote_is_yes: bool,
 	}
 
-	#[derive(Clone, Encode, Decode, Default, TypeInfo)]
+	#[derive(Clone, Encode, Decode, TypeInfo, Debug, PartialEq)]
+	pub enum ProposalStatus {
+		Approved,
+		Rejected,
+	}
+
+	#[derive(Clone, Encode, Decode, TypeInfo)]
 	pub struct FinishedProposal<AccountId, Moment> {
 		pub proposal: Proposal<AccountId, Moment>,
-		pub is_approved: bool,
+		pub proposal_status: ProposalStatus,
 	}
 
 	#[pallet::event]
@@ -55,7 +61,7 @@ pub mod pallet {
 		},
 		ProposalFinalized {
 			proposal_id: u32,
-			is_approved: bool,
+			proposal_status: ProposalStatus,
 			total_votes: u32,
 			yes_votes: u32,
 		},
@@ -63,7 +69,7 @@ pub mod pallet {
 
 	#[pallet::error]
 	pub enum Error<T> {
-		EndTimeStampTooSoon,
+		ProposalDurationTooShort,
 		DescriptionIsTooLong,
 		Overflow,
 		ProposalDoesNotExist,
@@ -118,20 +124,18 @@ pub mod pallet {
 		pub fn create_proposal(
 			origin: OriginFor<T>,
 			description: Vec<u8>,
-			end_timestamp: T::Moment,
+			proposal_duration_in_milliseconds: u64,
 		) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 
 			let old_id = Self::proposal_counter();
 			let new_id = old_id.checked_add(1).ok_or(Error::<T>::Overflow)?;
 
-			// ! Check if end_timestamp  > current + min_diff
-			let current_timestamp = <pallet_timestamp::Pallet<T>>::now();
-			let min_difference: T::Moment =
-				86_400_000u64.try_into().map_err(|_| Error::<T>::Overflow)?; // 1 day in milliseconds
+			// ! Check if proposal_duration_in_milliseconds is more than 1 day
+			let min_proposal_duration = 86_400_000u64; // 1 day in milliseconds
 			ensure!(
-				end_timestamp > current_timestamp + min_difference,
-				Error::<T>::EndTimeStampTooSoon
+				proposal_duration_in_milliseconds > min_proposal_duration,
+				Error::<T>::ProposalDurationTooShort
 			);
 
 			// ! Check if description too long
@@ -140,6 +144,10 @@ pub mod pallet {
 				description.len() as u32 <= max_description_length,
 				Error::<T>::DescriptionIsTooLong
 			);
+
+			let current_timestamp = <pallet_timestamp::Pallet<T>>::now();
+			let end_timestamp = current_timestamp
+				+ proposal_duration_in_milliseconds.try_into().map_err(|_| Error::<T>::Overflow)?;
 
 			let new_proposal = Proposal {
 				creator: sender.clone(),
@@ -205,9 +213,13 @@ pub mod pallet {
 			ensure!(current_timestamp > proposal.end_timestamp, Error::<T>::TooEarlyToFinalize,);
 
 			let (total_votes, yes_votes) = Self::count_votes(proposal_id);
+			let proposal_status = if yes_votes * 2 > total_votes {
+				ProposalStatus::Approved
+			} else {
+				ProposalStatus::Rejected
+			};
 
-			let finished_proposal =
-				FinishedProposal { proposal, is_approved: yes_votes * 2 > total_votes };
+			let finished_proposal = FinishedProposal { proposal, proposal_status };
 
 			<FinishedProposals<T>>::insert(proposal_id, finished_proposal.clone());
 			<ActiveProposals<T>>::remove(proposal_id);
@@ -215,7 +227,7 @@ pub mod pallet {
 			// ! Emit number of YES vs number of NO
 			Self::deposit_event(Event::ProposalFinalized {
 				proposal_id,
-				is_approved: finished_proposal.is_approved,
+				proposal_status: finished_proposal.proposal_status,
 				total_votes,
 				yes_votes,
 			});

@@ -90,13 +90,13 @@ cargo build --release
 
 - `origin` - Default parameter representing user that is calling function
 - `description` - Description of the proposal - Description can NOT be longer than 1024 bytes. That means the description can hold a maximum of 1,024 characters if they are all ASCII characters (each taking 1 byte).
-- `end_timestamp` - Represents the moment in which the proposal can be finalized. Must at least `86_400_000` (one day) longer than the `current_timestamp`
+- `proposal_duration_in_milliseconds` - Duration of proposal. Must be at least `86_400_000` (one day).
 
 #### Errors
 
 - Can throw the following errors :
   - `Overflow` - If Proposal ID is too big
-  - `EndTimeStampTooSoon` - If `end_timestamp` is shorter than 1 day from current moment in time
+  - `ProposalDurationTooShort` - If `proposal_duration_in_milliseconds` is shorter than 1 day (86_400_000)
   - `DescriptionIsTooLong` - If `description` is longer than 1024 bytes
 
 #### State changes
