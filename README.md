@@ -106,3 +106,60 @@ cargo build --release
       vote_is_yes: bool,
   },
   ```
+
+### `finalize_proposal()`
+
+#### Parameters
+
+- `origin` - The user who is attempting to finalize the proposal.
+- `proposal_id` - The ID of the proposal that is being finalized.
+
+#### Errors
+
+- Can throw the following errors:
+  - `ProposalDoesNotExist` - Thrown if the `proposal_id` does not correspond to an existing active proposal.
+  - `TooEarlyToFinalize` - Thrown if the current timestamp is not yet beyond the proposal's `end_timestamp`.
+
+#### State changes
+
+- Removes the proposal from `ActiveProposals`.
+- Adds proposal into `FinishedProposals`
+
+#### Event emitting
+
+- Emits the `ProposalFinalized` event:
+
+  ```rust
+  ProposalFinalized {
+      proposal_id: u32,
+      is_approved: bool,
+      total_votes: u32,
+      yes_votes: u32,
+  },
+  ```
+
+### `get_vote_counts()`
+
+#### Parameters
+
+- `proposal_id` - The ID of the proposal for which the vote counts are being retrieved.
+
+#### Usage
+
+- This function is used internally by the pallet in the `finalize_proposal()` function, to determine the outcome of a proposal based on the votes.
+
+#### Return Values
+
+- Returns a tuple `(total_votes, yes_votes)`:
+  - `total_votes` - The total number of votes cast on the proposal.
+  - `yes_votes` - The number of votes that were in favor of the proposal ( `yes` votes).
+
+```rust
+fn get_vote_counts(proposal_id: u32) -> (u32, u32) {
+    let votes = Self::proposal_to_votes(proposal_id).unwrap_or_default();
+    let total_votes = votes.len() as u32;
+    let yes_votes = votes.iter().filter(|v| v.vote_is_yes).count() as u32;
+
+    (total_votes, yes_votes)
+}
+```
