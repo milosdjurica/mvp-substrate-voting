@@ -204,7 +204,7 @@ pub mod pallet {
 			let current_timestamp = <pallet_timestamp::Pallet<T>>::now();
 			ensure!(current_timestamp > proposal.end_timestamp, Error::<T>::TooEarlyToFinalize,);
 
-			let (total_votes, yes_votes) = Self::get_vote_counts(proposal_id);
+			let (total_votes, yes_votes) = Self::count_votes(proposal_id);
 
 			let finished_proposal =
 				FinishedProposal { proposal, is_approved: yes_votes * 2 > total_votes };
@@ -225,7 +225,7 @@ pub mod pallet {
 	}
 
 	impl<T: Config> Pallet<T> {
-		fn get_vote_counts(proposal_id: u32) -> (u32, u32) {
+		fn count_votes(proposal_id: u32) -> (u32, u32) {
 			let votes = Self::proposal_to_votes(proposal_id).unwrap_or_default();
 			let total_votes = votes.len() as u32;
 			let yes_votes = votes.iter().filter(|v| v.vote_is_yes).count() as u32;

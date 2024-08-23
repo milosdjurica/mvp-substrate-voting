@@ -21,7 +21,7 @@
         <li><a href="#create_proposal">create_proposal()</a></li>
         <li><a href="#vote">vote()</a></li>
         <li><a href="#finalize_proposal">finalize_proposal()</a></li>
-        <li><a href="#get_vote_counts">get_vote_counts()</a></li>
+        <li><a href="#count_votes">count_votes()</a></li>
       </ul>
     </li>
   </ol>
@@ -166,7 +166,7 @@ cargo build --release
   },
   ```
 
-### `get_vote_counts()`
+### `count_votes()`
 
 #### Parameters
 
@@ -183,7 +183,7 @@ cargo build --release
   - `yes_votes` - The number of votes that were in favor of the proposal ( `yes` votes).
 
 ```rust
-fn get_vote_counts(proposal_id: u32) -> (u32, u32) {
+fn count_votes(proposal_id: u32) -> (u32, u32) {
     let votes = Self::proposal_to_votes(proposal_id).unwrap_or_default();
     let total_votes = votes.len() as u32;
     let yes_votes = votes.iter().filter(|v| v.vote_is_yes).count() as u32;
