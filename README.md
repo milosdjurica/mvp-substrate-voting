@@ -26,6 +26,9 @@
         <li><a href="#count_votes">count_votes()</a></li>
       </ul>
     </li>
+    <li>
+      <a href="#potential-improvements">Potential improvements</a>
+    </li>
   </ol>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -209,5 +212,11 @@ fn count_votes(proposal_id: u32) -> (u32, u32) {
     (total_votes, yes_votes)
 }
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Potential Improvements
+
+- Automating finalizing proposals with `pallet-scheduler`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
