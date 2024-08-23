@@ -210,4 +210,4 @@ fn count_votes(proposal_id: u32) -> (u32, u32) {
 }
 ```
 
-<a name="readme-top"></a>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
