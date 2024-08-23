@@ -1,3 +1,31 @@
+<!-- TABLE OF CONTENTS -->
+
+## Table of Contents
+
+  <ol>
+    <li>
+      <a href="#overview">Overview</a>
+    </li>
+    <li>
+      <a href="#features">Features</a>
+    </li>
+    <li>
+      <a href="#setup-instructions">Setup Instructions</a>
+    </li>
+    <li>
+      <a href="#run-pallet-in-demo-mode">Run Pallet in Demo Mode</a>
+    </li>
+    <li>
+      <a href="#pallet-functionality">Pallet Functionality</a>
+      <ul>
+        <li><a href="#create_proposal">create_proposal()</a></li>
+        <li><a href="#vote">vote()</a></li>
+        <li><a href="#finalize_proposal">finalize_proposal()</a></li>
+        <li><a href="#get_vote_counts">get_vote_counts()</a></li>
+      </ul>
+    </li>
+  </ol>
+
 # Decentralized Voting Pallet
 
 ## Overview
