@@ -1,3 +1,5 @@
+<a name="readme-top"></a>
+
 <!-- TABLE OF CONTENTS -->
 
 ## Table of Contents
@@ -26,17 +28,23 @@
     </li>
   </ol>
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 # Decentralized Voting Pallet
 
 ## Overview
 
 This Substrate pallet implements a decentralized voting system. It allows users to create proposals, vote on them, and finalize their results. The pallet utilizes the Substrate runtime and timestamp pallet to manage proposal creation, voting, and proposal finalization based on a timestamped voting period.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Features
 
 - **Create Proposals**: Users can create new proposals by submitting a description and a voting end timestamp.
 - **Vote on Proposals**: Users can cast votes on active proposals. Each user can vote only once per proposal.
 - **Finalize Proposals**: Once the voting period ends, proposals are finalized based on the majority of votes.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Setup Instructions
 
@@ -52,6 +60,8 @@ git clone https://github.com/milosdjurica/mvp-substrate-voting
 cargo build --release
 ```
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Run pallet in demo mode
 
 1. Start the node in development mode
@@ -66,6 +76,8 @@ cargo build --release
 - GitHub Project link -> https://github.com/polkadot-js/apps .
 
 3. Under `Developer` tab you have `Chain state` and `Extrinsics` options. Under `Chain state` tab you can read from read functions. Under `Extrinsics` tab you can `create_proposal()` , `vote()` and `finalize_proposal()`.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Pallet functionality
 
@@ -103,6 +115,8 @@ cargo build --release
 
   ```
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### `vote()`
 
 #### Parameters
@@ -135,6 +149,8 @@ cargo build --release
   },
   ```
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### `finalize_proposal()`
 
 #### Parameters
@@ -165,6 +181,8 @@ cargo build --release
       yes_votes: u32,
   },
   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### `count_votes()`
 
