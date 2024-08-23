@@ -18,7 +18,6 @@ pub mod pallet {
 	#[pallet::config]
 	pub trait Config: frame_system::Config + TimestampConfig {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-		type Time: From<<Self as TimestampConfig>::Moment>;
 	}
 
 	#[derive(Clone, Encode, Decode, Default, TypeInfo)]

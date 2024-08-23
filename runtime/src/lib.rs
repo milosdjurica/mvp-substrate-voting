@@ -248,7 +248,6 @@ impl pallet_sudo::Config for Runtime {
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type Time = u64; // Ensure this matches the type used in pallet_timestamp::Config
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
