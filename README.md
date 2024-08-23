@@ -45,13 +45,16 @@ cargo build --release
 
 #### Parameters
 
-- `origin` - default parameter representing user that is calling function
-- `description` - description of the proposal - Description can NOT be longer than 1024 bytes. That means the description can hold a maximum of 1,024 characters if they are all ASCII characters (each taking 1 byte).
+- `origin` - Default parameter representing user that is calling function
+- `description` - Description of the proposal - Description can NOT be longer than 1024 bytes. That means the description can hold a maximum of 1,024 characters if they are all ASCII characters (each taking 1 byte).
 - `end_timestamp` - Represents the moment in which the proposal can be finalized. Must at least `86_400_000` (one day) longer than the `current_timestamp`
 
 #### Errors
 
-- Can throw the following errors : `Overflow`, `EndTimeStampTooSoon`, `DescriptionIsTooLong`
+- Can throw the following errors :
+  - `Overflow` - If Proposal ID is too big
+  - `EndTimeStampTooSoon` - If `end_timestamp` is shorter than 1 day from current moment in time
+  - `DescriptionIsTooLong` - If `description` is longer than 1024 bytes
 
 #### State changes
 
@@ -70,4 +73,36 @@ cargo build --release
   		end_timestamp: T::Moment,
   	},
 
+  ```
+
+### `vote()`
+
+#### Parameters
+
+- `origin` - The user who is casting the vote.
+- `proposal_id` - The ID of the proposal on which the vote is being cast.
+- `vote_is_yes` - A boolean value representing the user's vote. `true` indicates a vote in favor of the proposal, and `false` indicates a vote against it.
+
+#### Errors
+
+- Can throw the following errors:
+  - `ProposalDoesNotExist` - Thrown if the `proposal_id` does not correspond to an existing active proposal.
+  - `ProposalIsNotActive` - Thrown if the current timestamp is beyond the proposal's `end_timestamp`, preventing from users to vote on proposal after it should be finalized.
+  - `UserAlreadyVoted` - Thrown if the user has already voted on the proposal.
+
+#### State changes
+
+- Appends the user's vote to the `ProposalToVotes` mapping, which stores the list of votes for each proposal.
+- Updates the `UserHasVotedOnProposal` mapping to record that the user has voted on this specific proposal.
+
+#### Event emitting
+
+- Emits the `UserVoted` event:
+
+  ```rust
+  UserVoted {
+      proposal_id: u32,
+      voter: T::AccountId,
+      vote_is_yes: bool,
+  },
   ```
