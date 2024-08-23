@@ -35,8 +35,8 @@ pub mod pallet {
 
 	#[derive(Clone, Encode, Decode, TypeInfo, Debug, PartialEq)]
 	pub enum ProposalStatus {
-		Approved,
-		Rejected,
+		APPROVED,
+		REJECTED,
 	}
 
 	#[derive(Clone, Encode, Decode, TypeInfo)]
@@ -214,9 +214,9 @@ pub mod pallet {
 
 			let (total_votes, yes_votes) = Self::count_votes(proposal_id);
 			let proposal_status = if yes_votes * 2 > total_votes {
-				ProposalStatus::Approved
+				ProposalStatus::APPROVED
 			} else {
-				ProposalStatus::Rejected
+				ProposalStatus::REJECTED
 			};
 
 			let finished_proposal = FinishedProposal { proposal, proposal_status };

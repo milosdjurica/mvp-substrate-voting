@@ -164,7 +164,7 @@ cargo build --release
 #### Errors
 
 - Can throw the following errors:
-  - `ProposalDoesNotExist` - Thrown if the `proposal_id` does not correspond to an existing active proposal.
+  - `ProposalDoesNotExist` - Thrown if the `proposal_id` does not exist in active proposals.
   - `TooEarlyToFinalize` - Thrown if the current timestamp is not yet beyond the proposal's `end_timestamp`.
 
 #### State changes
@@ -179,10 +179,15 @@ cargo build --release
   ```rust
   ProposalFinalized {
       proposal_id: u32,
-      is_approved: bool,
+      proposal_status: ProposalStatus,
       total_votes: u32,
       yes_votes: u32,
   },
+
+  pub enum ProposalStatus{
+    APPROVED,
+    REJECTED,
+  }
   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -201,7 +206,7 @@ cargo build --release
 
 - Returns a tuple `(total_votes, yes_votes)`:
   - `total_votes` - The total number of votes cast on the proposal.
-  - `yes_votes` - The number of votes that were in favor of the proposal ( `yes` votes).
+  - `yes_votes` - The number of votes that were in favor of the proposal ( `YES` votes).
 
 ```rust
 fn count_votes(proposal_id: u32) -> (u32, u32) {
