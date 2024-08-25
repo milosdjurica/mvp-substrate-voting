@@ -2,6 +2,8 @@
 
 <!-- TABLE OF CONTENTS -->
 
+## Voting pallet is located under `/pallets/template`
+
 ## Table of Contents
 
   <ol>
